@@ -23,17 +23,19 @@ pool.connect().then(() => {
  * @param {String} email The email of the user.
  * @return {Promise<{}>} A promise to the user.
  */
-const getUserWithEmail = function (email) {
-  let user;
-  for (const userId in users) {
-    user = users[userId];
-    if (user.email.toLowerCase() === email.toLowerCase()) {
-      break;
-    } else {
-      user = null;
-    }
-  }
-  return Promise.resolve(user);
+const getUserWithEmail = (email) => {
+  const value = [email];
+  // eslint-disable-next-line quotes
+  const queryString = `SELECT * FROM users WHERE email = $1`;
+  return pool
+    .query(queryString, value)
+    .then((result) => {
+      if (result.rows.length === 1) {
+        return result.rows[0];
+      }
+      return null;
+    })
+    .catch((err) => console.log('Error: ', err));
 };
 exports.getUserWithEmail = getUserWithEmail;
 
@@ -42,8 +44,19 @@ exports.getUserWithEmail = getUserWithEmail;
  * @param {string} id The id of the user.
  * @return {Promise<{}>} A promise to the user.
  */
-const getUserWithId = function (id) {
-  return Promise.resolve(users[id]);
+const getUserWithId = (id) => {
+  // eslint-disable-next-line quotes
+  const queryString = `SELECT * FROM users WHERE id = $1`;
+  const value = [id];
+  return pool
+    .query(queryString, value)
+    .then((result) => {
+      if (result.rows.length > 0) {
+        return result.rows[0];
+      }
+      return null;
+    })
+    .catch((err) => console.log('Error: ', err));
 };
 exports.getUserWithId = getUserWithId;
 
@@ -52,11 +65,14 @@ exports.getUserWithId = getUserWithId;
  * @param {{name: string, password: string, email: string}} user
  * @return {Promise<{}>} A promise to the user.
  */
-const addUser = function (user) {
-  const userId = Object.keys(users).length + 1;
-  user.id = userId;
-  users[userId] = user;
-  return Promise.resolve(user);
+const addUser = (user) => {
+  // eslint-disable-next-line quotes
+  const queryString = `INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *`;
+  const value = [user.name, user.email, user.password];
+  return pool
+    .query(queryString, value)
+    .then((result) => result.rows[0])
+    .catch((err) => console.log('Error: ', err));
 };
 exports.addUser = addUser;
 
