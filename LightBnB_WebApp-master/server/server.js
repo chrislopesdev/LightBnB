@@ -1,18 +1,17 @@
-const database = require('./database');
-const apiRoutes = require('./apiRoutes');
-const userRoutes = require('./userRoutes');
-
 const path = require('path');
 
 const express = require('express');
 const cookieSession = require('cookie-session');
 const bodyParser = require('body-parser');
+const userRoutes = require('./userRoutes');
+const apiRoutes = require('./apiRoutes');
+const database = require('./database');
 
 const app = express();
 
 app.use(cookieSession({
   name: 'session',
-  keys: ['key1']
+  keys: ['key1'],
 }));
 
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -30,9 +29,9 @@ app.use('/users', userRouter);
 
 app.use(express.static(path.join(__dirname, '../public')));
 
-app.get("/test", (req, res) => {
-  res.send("🤗");
+app.get('/test', (req, res) => {
+  res.send('🤗');
 });
 
-const port = process.env.PORT || 3000; 
+const port = process.env.PORT || 3000;
 app.listen(port, (err) => console.log(err || `listening on port ${port} 😎`));
